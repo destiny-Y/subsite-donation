@@ -1,237 +1,280 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+
+interface AnimateElement extends HTMLElement {
+  animateInfo: {
+    scale?: number
+    x?: number
+    y?: number
+    z?: number
+  }
+  prevAnimateInfo: {
+    scale?: number
+    x?: number
+    y?: number
+    z?: number
+  }
+}
+
+const container = ref<HTMLElement>()
+let randomAnimate: RandomAnimate
+
+class RandomAnimate {
+  container: HTMLElement | null = null
+  items: AnimateElement[] = []
+  minScale = 0.9
+  scaleInterval = 10000 // 缩放间隔
+  xInterval = 40000 // 横向位移速度
+  yInterval = 40000 // 纵向位移速度
+  animateInterval = 16 // 动画间隔 16ms
+  index = 1
+  animationFrame: number | undefined
+  restartTimer: number | undefined
+  mutationObserver: MutationObserver | undefined
+
+  constructor(container: HTMLElement) {
+    this.container = container
+    this.init()
+  }
+
+  init() {
+    this.container!.style.position = 'relative'
+    this.createMutation()
+  }
+
+  createMutation() {
+    this.mutationObserver = new MutationObserver(function (mutationRecords) {
+      mutationRecords.forEach((record) => {
+        const { addedNodes, removedNodes } = record
+        if (addedNodes.length) {
+          randomAnimate.add(
+            Array.from(addedNodes).filter(
+              (node) => node.nodeType === 1
+            ) as AnimateElement[]
+          )
+        }
+        if (removedNodes.length) {
+          randomAnimate.remove(
+            Array.from(removedNodes).filter(
+              (node) => node.nodeType === 1
+            ) as AnimateElement[]
+          )
+        }
+      })
+    })
+
+    this.mutationObserver.observe(container.value!, {
+      childList: true,
+      attributes: false
+    })
+  }
+
+  add(items: AnimateElement | AnimateElement[]) {
+    items = Array.isArray(items) ? items : [items]
+    items.forEach((item: AnimateElement) => {
+      item.style.position = 'absolute'
+      item.style.left = '0px'
+      item.style.top = '0px'
+      item.animateInfo = {}
+      item.prevAnimateInfo = {} // 上一状态，用来判断移动方向与缩放状态
+      this.setScale(item)
+      this.setPosition(item)
+      this.setHover(item)
+      this.render(item)
+    })
+    this.items.push(...items)
+  }
+
+  remove(item: AnimateElement | AnimateElement[]) {
+    if (Array.isArray(item)) {
+      item.forEach((i) => {
+        this.remove(i)
+      })
+    } else {
+      // item.parentElement!.removeChild(item)
+      const index = this.items.indexOf(item)
+      if (index > -1) {
+        this.items.splice(index, 1)
+      }
+    }
+  }
+
+  setScale(item: AnimateElement) {
+    const maxZ = this.items.length * 100
+    const minScale = this.minScale
+    const { animateInfo, prevAnimateInfo } = item
+    if (!animateInfo.scale) {
+      animateInfo.scale = Math.random() * (1 - minScale) + minScale
+    } else {
+      const scaleInterval = this.scaleInterval
+      const scaleStep = ((1 - minScale) / scaleInterval) * this.animateInterval
+      const _animate = JSON.parse(JSON.stringify(animateInfo))
+
+      let direction
+      if (prevAnimateInfo.scale) {
+        direction =
+          animateInfo.scale > prevAnimateInfo.scale ||
+            animateInfo.scale === minScale
+            ? 1
+            : -1
+      } else {
+        direction = Math.random() > 0.5 ? 1 : -1 // 随机开始放大或缩小
+      }
+
+      if (direction > 0) {
+        // 放大
+        animateInfo.scale += scaleStep
+        if (animateInfo.scale > 1) {
+          animateInfo.scale = 1
+        }
+      } else {
+        // 缩小
+        animateInfo.scale -= scaleStep
+        if (animateInfo.scale < minScale) {
+          animateInfo.scale = minScale
+        }
+      }
+      item.prevAnimateInfo.scale = _animate.scale
+    }
+    animateInfo.z = ~~(((animateInfo.scale - minScale) / (1 - minScale)) * maxZ)
+  }
+
+  setPosition(item: AnimateElement) {
+    const maxX = this.container!.clientWidth - item.clientWidth
+    const maxY = this.container!.clientHeight - item.clientHeight
+    const { animateInfo, prevAnimateInfo } = item
+    const _animate = JSON.parse(JSON.stringify(animateInfo))
+
+    if (animateInfo.x === undefined) {
+      animateInfo.x = Math.random() * maxX
+      animateInfo.y = Math.random() * maxY
+    } else {
+      let { xInterval, yInterval, animateInterval } = this
+      // xInterval = xInterval - Math.random() * 15000
+      // yInterval = yInterval - Math.random() * 15000
+      const xStep = (maxX / xInterval) * animateInterval
+      const yStep = (maxY / yInterval) * animateInterval
+
+      let directionX, directionY
+
+      if (prevAnimateInfo.x === undefined) {
+        directionX = Math.random() > 0.5 ? 1 : -1 // 随机开始向左或向右
+        directionY = Math.random() > 0.5 ? 1 : -1 // 随机开始向上或向下
+      } else {
+        directionX =
+          animateInfo.x > prevAnimateInfo.x || animateInfo.x === 0 ? 1 : -1
+        directionY =
+          animateInfo.y! > prevAnimateInfo.y! || animateInfo.y === 0 ? 1 : -1
+      }
+
+      if (directionX > 0) {
+        // 向右
+        animateInfo.x += xStep
+        if (animateInfo.x > maxX) {
+          animateInfo.x = maxX
+        }
+      } else {
+        // 向左
+        animateInfo.x -= xStep
+        if (animateInfo.x < 0) {
+          animateInfo.x = 0
+        }
+      }
+
+      if (directionY > 0) {
+        // 向下
+        animateInfo.y! += yStep
+        if (animateInfo.y! > maxY) {
+          animateInfo.y = maxY
+        }
+      } else {
+        // 向上
+        animateInfo.y! -= yStep
+        if (animateInfo.y! < 0) {
+          animateInfo.y = 0
+        }
+      }
+
+      item.prevAnimateInfo.x = _animate.x
+      item.prevAnimateInfo.y = _animate.y
+    }
+  }
+
+  setHover(item: AnimateElement) {
+    item.addEventListener('mouseenter', () => {
+      this.stop()
+      clearTimeout(this.restartTimer)
+      item.style.zIndex = this.items.length * 10000 + ''
+      item.style.transform = item.style.transform.replace(
+        /scale((\d+.?\d*))/,
+        'scale(1)'
+      )
+    })
+    item.addEventListener('mouseleave', () => {
+      item.style.zIndex = item.animateInfo.z + ''
+      item.style.transform = item.style.transform.replace(
+        /scale((\d+.?\d*))/,
+        `scale(${item.animateInfo.scale})`
+      )
+      this.restartTimer = (setTimeout(() => {
+        this.start()
+      }, 300) as any)
+    })
+  }
+
+  render(item: AnimateElement) {
+    const { x = 10, y = 10, z, scale } = item.animateInfo
+    item.style.zIndex = z + ''
+    item.style.transform = `translate(${x}px, ${y}px) scale(${scale})`
+  }
+
+  stop() {
+    this.animationFrame && window.cancelAnimationFrame(this.animationFrame)
+  }
+
+  start() {
+    this.items.forEach((item: AnimateElement) => {
+      this.setScale(item)
+      this.setPosition(item)
+      this.render(item)
+    })
+    this.animationFrame = window.requestAnimationFrame(() => {
+      this.start()
+    })
+  }
+
+  destroy() {
+    this.stop()
+    this.items = []
+    this.container = null
+    this.mutationObserver && this.mutationObserver.disconnect()
+  }
+}
+
+function init() {
+  randomAnimate = new RandomAnimate(container.value!)
+  const items = Array.from(container.value!.children) as AnimateElement[]
+  randomAnimate.add(items)
+  randomAnimate.start()
+}
+
+onMounted(() => {
+  init()
+})
+
+onUnmounted(() => {
+  randomAnimate.destroy()
+})
+</script>
 <template>
-  <div class="container">
-    <svg :width="width" :height="height" ref="test" @mousemove="listener($event)">
-      <a class="fontA" :href="tag.href" v-for="(tag, index) in tags" :key="index" @mouseenter="mouseenter($event)" @mouseleave="mouseleave($event)">
-        <text :x="tag.x" :y="tag.y" :fill="randomColor ? colors[index] : tag.color" :font-size="tag.size" :fill-opacity="(200 + tag.z) / 400">
-          {{ tag.label }}
-        </text>
-      </a>
-    </svg>
+  <div class="word-cloud-container" ref="container">
+    <slot></slot>
   </div>
 </template>
-<script>
-export default {
-  name: "word-cloud",
-  props: {
-    data: { // 示例数据 { label: "标题", href: "https://www.baidu.com/", size: 3, color: ''},
-      type: Array,
-      default: () => []
-    },
-    width: {
-      type: Number,
-      default: 700
-    },
-    height: {
-      type: Number,
-      default: 700
-    },
-    radiusX: { // X轴旋转半径
-      type: Number,
-      // default: 250
-      default:450
-    },
-    radiusY: { // y轴旋转半径
-      type: Number,
-      // default: 250
-      default:200
-    },
-    angleX: { // 球一帧绕x轴旋转的角度
-      type: Number,
-      default: 1.5
-    },
-    angleY: { // 球-帧绕y轴旋转的角度
-      type: Number,
-      default: 1.5
-    },
-    minSize: { // 最小字体大小, data内size是在最小字体大小基础上加
-      type: Number,
-      default: 16
-    },
-    maxSize: { // 最大字体大小
-      type: Number,
-      default: 44
-    },
-    randomColor: { // 需要字体颜色
-      type: Boolean,
-      default: false
-    },
-    needHover: { // 需要悬停
-      type: Boolean,
-      default: true
-    },
-    needSwerve: { // 是否根据鼠标位置转向
-      type: Boolean,
-      default: true
-    }
-  },
-  data() {
-    return {
-      tagsNum: 0, //标签数量
-      radius: 200, // Y轴旋转半径，用于计算透明度
-      speedX: null,
-      speedY: null,
-      tags: [],
-      timer: null,
-      colors: [], //存储颜色
-    };
-  },
-  computed: {
-    CX() {
-      //球心x坐标
-      return this.width / 2;
-    },
-    CY() {
-      //球心y坐标
-      return this.height / 2;
-    },
-  },
-  watch: {
-    data: {
-      handler(newValue) {
-        this.speedX = Math.PI / 360 / this.angleX
-        this.speedY = Math.PI / 360 / this.angleY
-        // 开始动画
-        if (this.timer) {
-          clearInterval(this.timer);
-          this.timer = null;
-        }
-        this.instData();
-      },
-      immediate: true,
-      deep: true
-    }
-  },
-  methods: {
-    //初始化标签位置
-    instData() {
-      let tags = [];
-      this.tagsNum = this.data.length;
-      if (this.hasColor) {
-        this.changeColors(this.tagsNum);
-      }
-      for (let i = 0; i < this.data.length; i++) {
-        let tag = {};
-        let k = -1 + (2 * (i + 1) - 1) / this.tagsNum;
-        let a = Math.acos(k);
-        let b = a * Math.sqrt(this.tagsNum * Math.PI); //计算标签相对于球心的角度
-        tag.label = this.data[i].label;
-        let size = this.minSize + this.data[i].size
-        tag.size = size > this.maxSize ? this.maxSize : size;
-        tag.x = this.CX + this.radiusX * Math.sin(a) * Math.cos(b); //根据标签角度求出标签的x,y,z坐标
-        tag.y = this.CY + this.radiusY * Math.sin(a) * Math.sin(b);
-        tag.z = this.radius * Math.cos(a);
-        tags.push(tag);
-      }
-      this.tags = tags;
-      this.timer = setInterval(() => {
-        this.rotateX(this.speedX);
-        this.rotateY(this.speedY);
-      }, 65);
-    },
-    // 纵向
-    rotateX(angleX) {
-      var cos = Math.cos(angleX);
-      var sin = Math.sin(angleX);
-      for (let tag of this.tags) {
-        var y1 = (tag.y - this.CY) * cos - tag.z * sin + this.CY;
-        var z1 = tag.z * cos + (tag.y - this.CY) * sin;
-        tag.y = y1;
-        tag.z = z1;
-      }
-    },
-    // 横向
-    rotateY(angleY) {
-      var cos = Math.cos(angleY);
-      var sin = Math.sin(angleY);
-      for (let tag of this.tags) {
-        var x1 = (tag.x - this.CX) * cos - tag.z * sin + this.CX;
-        var z1 = tag.z * cos + (tag.x - this.CX) * sin;
-        tag.x = x1;
-        tag.z = z1;
-      }
-    },
-    // 监听鼠标方向
-    listener(e) {
-      if (!this.needSwerve) return;
-      var x = e.clientX - this.CX;
-      var y = e.clientY - this.CY;
-      if (x * 0.0001 > 0 && y * 0.0001 > 0) {
-        this.speedX = -Math.min(this.radiusX * 0.00002, x * 0.0002);
-        this.speedY = -Math.min(this.radiusY * 0.00002, y * 0.0002);
-      } else if (x * 0.0001 < 0 && y * 0.0001 < 0) {
-        this.speedX = -Math.max(-this.radiusX * 0.00002, x * 0.0002);
-        this.speedY = -Math.max(-this.radiusY * 0.00002, y * 0.0002);
-      } else {
-        this.speedX =
-          x * 0.0001 > 0
-            ? Math.min(this.radiusX * 0.00002, x * 0.0001)
-            : Math.max(-this.radiusX * 0.00002, x * 0.0001);
-        this.speedY =
-          y * 0.0001 > 0
-            ? Math.min(this.radiusY * 0.00002, y * 0.0001)
-            : Math.max(-this.radiusY * 0.00002, y * 0.0001);
-      }
-    },
-    // 鼠标进入文字
-    mouseenter(e) {
-      if (!this.needHover) return;
-      // 修改透明度
-      let doms = document.getElementsByClassName('fontA');
-      for (let i = 0; i < doms.length; i++) {
-        doms[i].childNodes[0].style.fillOpacity = '0.3';
-      }
-      e.target.childNodes[0].style.fillOpacity = 1;
-
-      // 停止动画
-      clearInterval(this.timer);
-      this.timer = null;
-    },
-
-    // 鼠标离开文字
-    mouseleave() {
-      if (!this.needHover) return;
-      // 修改透明度
-      let doms = document.getElementsByClassName('fontA');
-      for (let i = 0; i < doms.length; i++) {
-        doms[i].childNodes[0].style.fillOpacity = '';
-      }
-
-      // 开始动画
-      if (this.timer) {
-        clearInterval(this.timer);
-        this.timer = null;
-      }
-      this.timer = setInterval(() => {
-        this.rotateX(this.speedX);
-        this.rotateY(this.speedY);
-      }, 65);
-    },
-    // 颜色
-    changeColors(num) {
-      //随机变色
-      for (var i = 0; i < num; i++) {
-        var r = Math.floor(Math.random() * 256);
-        var g = Math.floor(Math.random() * 256);
-        var b = Math.floor(Math.random() * 256);
-        this.colors[i] = "rgb(" + r + "," + g + "," + b + ")";
-      }
-    },
-  }
-};
-</script>
-
-
 <style lang="less" scoped>
-.container {
+.word-cloud-container {
   width: 100%;
   height: 100%;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 10px;
-  .fontA {
-    font-weight: bold;
-  }
+  position: relative;
 }
 </style>

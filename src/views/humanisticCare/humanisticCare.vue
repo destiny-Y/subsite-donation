@@ -18,13 +18,10 @@
       <div class="main_wrapper">
         <div class="list">
           <div class="list_item" v-for="(item,index) in dataList" :key="item.id">
-          <!-- <div class="list_item" v-for="(item,index) in 8" :key="item"> -->
             <!-- <img class="avatar" src="../../assets/images/memory.png" alt=""> -->
             <img class="avatar" :src="item.photo" alt="">
             <p class="item_name">{{item.realName}}</p>
-            <!-- <p class="item_name">懒羊羊</p> -->
             <button class="item_sacrifice" @click="toCommemoration(item.id)">在线祭奠</button>
-            <!-- <button class="item_sacrifice">在线祭奠</button> -->
           </div>
         </div>
         <div class="pagination">
@@ -39,13 +36,14 @@
   import baseServiceDonation from '@/service/baseServiceDonation';
   import { useDebounce } from '@/utils/utils';
   import { Search } from '@element-plus/icons-vue'
-  import { onMounted, reactive, ref } from 'vue';
+  import { onMounted, reactive, ref, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
+  import Emits from '@/utils/emits';
 
   const router = useRouter();
   const route = useRoute();
   const titleList = ref([{label:"人体器官捐献者",value:2},{label:"遗体(角膜)捐献者",value:1}]);  // 标题列表
-  const activeName = Number(route.query.name) || ref(2);
+  const activeName = ref(2);
   const total = ref(0);
   const state = reactive({
     page: 1,
@@ -57,14 +55,23 @@
   });
   const dataList = ref<any[]>([]);  // 数据列表
   onMounted(() => {
+    activeName.value = Number(route.query.name);
     getDataList();  // 获取列表数据
   });
+  // 路由参数刷新，重新获取数据
+  watch(() => route.query.name,() => {
+    dataForm.memorialGarden = Number(route.query.name);
+    activeName.value = Number(route.query.name);
+    getDataList();
+  })
   // tab切换
   const clickHandler = useDebounce((tab:any) => {
     let name = tab.props.name;
     dataForm.memorialGarden = name;
     // dataList.value = []
     getDataList();  // 获取列表数据
+    // 更新面包屑数据
+    Emits.emit("updateBreadCrumb",name);
   },500);
   // 搜索回调
   const searchHandler = useDebounce(() => {

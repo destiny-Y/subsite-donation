@@ -8,7 +8,8 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import { VantResolver } from '@vant/auto-import-resolver';
 
 export default defineConfig({
-  base: '/',
+  base: process.env.NODE_ENV == "development" ? "/" : "/donationSite",
+  // base: '/',
   plugins: [
     vue(),
     AutoImport({

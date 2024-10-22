@@ -2,8 +2,9 @@
   <div class="home">
     <div class="banner">
       <el-carousel trigger="click" indicator-position="none" arrow="never" height="560px">
-        <el-carousel-item>
-          <img src="../../assets/images/banner.png" />
+        <el-carousel-item v-for="(item,index) in bannerList">
+          <!-- <img src="../../assets/images/banner.png" style="width: 100%;height: 100%;"/> -->
+          <img :src="item.thumbnail" style="width: 100%;height: 100%;"/>
         </el-carousel-item>
       </el-carousel>
     </div>
@@ -12,53 +13,53 @@
         <el-col class="donation-item" :span="6">
           <img class="icon" src="../../assets/images/hematopoietic-stem-cell-icon.png" />
           <p class="donation-title">造血干细胞捐献</p>
-          <p class="donation-date">截止至2024年07月16日</p>
+          <p class="donation-date">截止至{{ moment().format("YYYY年MM月DD日") }}</p>
           <img class="line" src="../../assets/images/line.png" alt="">
           <p class="donation-realize">实现造血干细胞捐献</p>
-          <p class="donation-number"><span class="number">281</span>例</p>
+          <p class="donation-number"><span class="number">{{staticData.cell}}</span>例</p>
         </el-col>
         <el-col class="donation-item" :span="6">
           <img class="icon" src="../../assets/images/human-organ-icon.png" alt="">
           <p class="donation-title">人体器官捐献</p>
-          <p class="donation-date">截止至2024年07月16日</p>
+          <p class="donation-date">截止至{{ moment().format("YYYY年MM月DD日") }}</p>
           <img class="line" src="../../assets/images/line.png" alt="">
           <p class="donation-realize">实现人体器官捐献</p>
-          <p class="donation-number"><span class="number">281</span>例</p>
+          <p class="donation-number"><span class="number">{{staticData.organ}}</span>例</p>
         </el-col>
         <el-col class="donation-item" :span="6">
           <img class="icon" src="../../assets/images/body-donation-icon.png" alt="">
           <p class="donation-title">遗体捐献</p>
-          <p class="donation-date">截止至2024年07月16日</p>
+          <p class="donation-date">截止至{{ moment().format("YYYY年MM月DD日") }}</p>
           <img class="line" src="../../assets/images/line.png" alt="">
           <p class="donation-realize">实现遗体捐献</p>
-          <p class="donation-number"><span class="number">281</span>例</p>
+          <p class="donation-number"><span class="number">{{staticData.body}}</span>例</p>
         </el-col>
         <el-col class="donation-item" :span="6">
           <img class="icon" src="../../assets/images/cornea-donation-icon.png" alt="">
           <p class="donation-title">角膜捐献</p>
-          <p class="donation-date">截止至2024年07月16日</p>
+          <p class="donation-date">截止至{{ moment().format("YYYY年MM月DD日") }}</p>
           <img class="line" src="../../assets/images/line.png" alt="">
           <p class="donation-realize">实现角膜捐献</p>
-          <p class="donation-number"><span class="number">281</span>例</p>
+          <p class="donation-number"><span class="number">{{staticData.cornea}}</span>例</p>
         </el-col>
       </el-row>
       <el-row class="volunteer-humanity">
         <div class="voluntary-registration">
           <div class="title">志愿登记</div>
           <div class="img-box">
-            <a href="#" target="_blank">
+            <a href="https://register.codac.org.cn/" target="_blank">
               <img src="../../assets/images/human-organ.png" alt="">
             </a>
-            <a href="#" target="_blank">
+            <div @click="cilckHandler">
               <img src="../../assets/images/hematopoietic-stem-cell.png" alt="">
-            </a>
-            <a href="#" target="_blank">
+            </div>
+            <div>
               <img src="../../assets/images/volunteer.png" alt="">
-            </a>
-            <a href="#" target="_blank">
+            </div>
+            <div @click="cilckHandler">
               <img src="../../assets/images/body-cornea-donation.png" alt="">
-            </a>
-            <a href="#" target="_blank">
+            </div>
+            <a href="https://www.ccbc.org.cn/" target="_blank">
               <img src="../../assets/images/voluntary-blood-donation.png" alt="">
             </a>
           </div>
@@ -71,7 +72,13 @@
       </el-row>
       <el-row class="leave-message">
         <img src="../../assets/images/message.png" alt="">
-        <!-- <div id="container" class="message-box"></div> -->
+        <!-- <div id="container" class="message-box">
+          <WordCloud>
+            <div class="card" v-for="(item, index) in wordCloudData" :key="index">
+              <div class="content">{{item.label}}</div>
+            </div>
+          </WordCloud>
+        </div> -->
         <WordCloud :data="wordCloudData" :width="1200" :height="550"/>
         <el-input placeholder="请输入您的留言" v-model="messageContent">
           <template #suffix>
@@ -83,29 +90,31 @@
     <!-- 首页弹窗 -->
     <tips-home ref="tipsHomeRef" />
     <!-- 验证码获取 -->
-    <phone-number ref="phoneNumberRef" v-if="phoneNumberVisible" @getResponse="getCodeResult"/>
+    <phone-number ref="phoneNumberRef" v-if="phoneNumberVisible" @getResponse="getCodeResult" />
     <!--  -->
     <!-- <FireWork/> -->
   </div>
 </template>
 <script setup lang="ts">
-import { nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAppStore } from '@/store';
 import PhoneNumber from '@/components/phoneNumber-dialog/index.vue';
 import baseService from '@/service/baseService';
 import TipsHome from '@/components/tips-home/tips-home.vue';
+import WordCloud from '@/components/wordCloud/wordCloud.vue';
+// import WordCloud from '@/components/wordCloud/wordCloud copy.vue';
 import { IObject } from '@/types/interface';
 import * as echarts from "echarts";
 import 'echarts-wordcloud';
 import { useDebounce, useEncrypt } from '@/utils/utils';
 import FireWork from '@/components/fireWork/fireWork..vue';
 import baseServiceDonation from '@/service/baseServiceDonation';
+import moment from 'moment';
+import Emits from '@/utils/emits';
 
 const router = useRouter();
 const store = useAppStore();
-// const parentCurrentIndex = ref<number>(-1);
-// const childCurrentIndex = ref<number>(-1);
 const tipsHomeRef = ref();
 const phoneNumberRef = ref();
 const phoneNumberVisible = ref(false);
@@ -148,6 +157,14 @@ const wordCloudData = ref([
   { label: "关爱生命，带着爱生活", value: 57 },
   { label: "关爱生命，带着爱生活", value: 46 },
 ]);
+const bannerList = ref<any[]>([]);  // 轮播图列表
+// 捐献统计数据
+const staticData = reactive({
+  cell:0,  // 造血干细胞
+  organ:0,  // 人体器官
+  body:0,  // 遗体捐献
+  cornea:0,  // 角膜捐献
+});
 watch(
   () => store.state.isConfigSwitch,
   (newValue) => {
@@ -161,17 +178,18 @@ watch(
   { immediate: true, deep: true }
 );
 onMounted(() => {
-  Promise.all([getTips(), getHomeData(),getMessageList()]);
-  // Promise.all([getMessageList()]);
-  // Promise.all([getTips(), getHomeData()]);
+  Promise.all([getTips(), getHomeData(), getMessageList()]);
+  Emits.on("updateBreadCrumb",(name:any) => {
+    updateBreadCrumbInfo(name);
+  })
   // initEchart();
 });
 // 获取留言列表
 const getMessageList = () => {
   baseServiceDonation.get("/threeDonate/api/message/getNewsList").then((res) => {
-    let arr = res.data.map((item:any) => {
+    let arr = res.data.map((item: any) => {
       let obj = {
-        label:item.messageContent,
+        label: item.messageContent,
       };
       return obj;
     });
@@ -182,36 +200,47 @@ const getMessageList = () => {
  * 人文关怀
  * @param name 2-人体器官缅怀纪念园 1-遗体角膜缅怀纪念园
  */
-const toMemory = (name:number) => {
-  let list = store.state.menus.filter((item:any) => item.channelName == "人文关怀") || [];
-  store.updateState({
-    navigationInfo: {
-      parentName: list[0]?.channelName || "人文关怀",
-      parentId: list[0]?.id || "",
-      childName: name == 2? "人体器官捐献者" : "遗体(角膜)捐献者",
-      childId: "",
-      articleTitle: ''
-    },
-    parentNavCurrentIndex: 0,
-    childNavCurrentIndex: name - 1
-  })
+const toMemory = (name: number) => {
+  updateBreadCrumbInfo(name);
   router.push({
     path: '/humanisticCare',
     query: {
       name
     }
   });
-}
+};
+// 更新面包屑
+const updateBreadCrumbInfo = (name:number) => {
+  let list = store.state.menus.filter((item: any) => item.channelName == "人文关怀") || [];
+  let id = "";
+  let title = "";
+  if(name == 2){
+    id = list[0]?.children[1]?.id || "";
+    title = list[0]?.children[1]?.channelName || "";
+  }else if(name == 1){
+    id = list[0]?.children[2]?.id || "";
+    title = list[0]?.children[2]?.channelName || "";
+  }
+  store.updateState({
+    navigationInfo: {
+      parentName: list[0]?.channelName || "人文关怀",
+      parentId: list[0]?.id || "",
+      childName:title,
+      childId: id,
+      articleTitle: ''
+    },
+  })
+};
 // 发送留言
 const sendMessageHandler = useDebounce(() => {
   let result = sessionStorage.getItem("verify");
-  if(result){  // 已验证通过，可直接发送留言
-    if(!messageContent.value){
+  if (result) {  // 已验证通过，可直接发送留言
+    if (!messageContent.value) {
       return ElMessage.warning("请填写留言内容！")
     }
-    baseServiceDonation.post("/threeDonate/api/message/saveNews",{
-      mobile:useEncrypt(result),
-      messageContent:messageContent.value
+    baseServiceDonation.post("/threeDonate/api/message/saveNews", {
+      mobile: useEncrypt(result),
+      messageContent: messageContent.value
     }).then((res) => {
       ElMessage.success("留言成功！");
       messageContent.value = "";
@@ -219,18 +248,18 @@ const sendMessageHandler = useDebounce(() => {
       getMessageList();
     })
   }
-  if(!result){
+  if (!result) {
     phoneNumberVisible.value = true;
     nextTick(() => {
       phoneNumberRef.value.init();
     })
   }
-},500);
+}, 500);
 // 获取手机号验证结果
-const getCodeResult = (res:any) => {
+const getCodeResult = (res: any) => {
   // 将结果存储起来
-  if(res.code == 200){
-    sessionStorage.setItem("verify",res.mobile);
+  if (res.code == 200) {
+    sessionStorage.setItem("verify", res.mobile);
   }
   // 验证通过后，关闭弹窗
   phoneNumberVisible.value = false;
@@ -239,10 +268,27 @@ const getCodeResult = (res:any) => {
  * 获取首页数据
  */
 const getHomeData = () => {
-  baseService.get('/view/subsite/homeViewView/rjh/home').then((res) => {
-    // console.log(res);
+  baseService.get('/view/subsite/homeViewView/donation/home').then((res) => {
+    // 首页轮播图数据
+    bannerList.value = res.data.frontPartBannerVo?.frontPartBannerVoList || [];
+    // 捐献数据统计
+    res.data?.dataList.forEach((item:any) => {
+      if(item.configName.includes("角膜")){
+        staticData.cornea = item.configNumber
+      }else if(item.configName.includes("遗体")){
+        staticData.body = item.configNumber
+      }else if(item.configName.includes("器官")){
+        staticData.organ = item.configNumber
+      }else if(item.configName.includes("细胞")){
+        staticData.cell = item.configNumber
+      }
+    })
   });
 };
+// 
+const cilckHandler = () => {
+  Emits.emit("registerQuery");
+}
 /**
  * 查看详情
  */
@@ -275,22 +321,6 @@ const lookNesDetail = (articleTitle: string, articleId: string, parentId: string
   });
 };
 /**
- * 匹配菜单数组元素下标
- */
-// const findIndex = (array: any, parentId: string, parentIndex?: number) => {
-//   array.forEach((item: IObject, index: number) => {
-//     if (parentId == item.id) {
-//       childCurrentIndex.value = typeof parentIndex === 'undefined' ? 0 : index;
-//       return (parentCurrentIndex.value = typeof parentIndex === 'undefined' ? index : parentIndex);
-//     } else {
-//       if (item.children.length > 0) {
-//         findIndex(item.children, parentId, index);
-//       }
-//     }
-//   });
-//   return parentCurrentIndex.value;
-// };
-/**
  * 首页弹窗信息`
  */
 const getTips = () => {
@@ -302,6 +332,9 @@ const getTips = () => {
     }
   });
 };
+// onUnmounted(() => {
+//   Emits.off("updateBreadCrumb");
+// })
 const initEchart = () => {
   const echartDom = document.getElementById('container');
   const myChart = echarts.init(echartDom);
@@ -377,16 +410,21 @@ const initEchart = () => {
 @titleHeight: 40px;
 @paddingTop: 14px;
 @paddingBottom: 25px;
+
 .home {
   // min-width: 1200px;
   background: url("../../assets/images/bg.png") 100% 100% / 100% 100% no-repeat;
   padding-bottom: 120px;
-  overflow: hidden;
+  // overflow: hidden;
   .banner {
     width: 100%;
-    height: @base-banner-height;
+    // height: @base-banner-height;
+    min-height: @base-banner-height;
+    text-align: center;
     img {
       width: 100%;
+      // width: 1920px;
+      min-height: 560px;
       height: 100%;
     }
   }
@@ -468,7 +506,8 @@ const initEchart = () => {
           a:last-child {
             width: 100%;
           }
-          a:nth-child(3) {
+          // a:nth-child(3) {
+          div:nth-child(3){
             margin: 10px;
           }
           img {
@@ -505,6 +544,40 @@ const initEchart = () => {
         width: 100%;
         height: 484px;
         margin: 34px auto 61px;
+        // .word-cloud-random {
+        //   width: 100%;
+        //   height: 100%;
+        //   overflow: hidden;
+        //   background-color: transparent;
+        //   position: relative;
+        // }
+        // .card {
+        //   width: 213px;
+        //   height: auto;
+        //   box-shadow: 0px 2px 4px 0px rgba(0, 78, 106, 0.8);
+        //   border-radius: 7px;
+        //   border: 1px solid rgba(255, 255, 255, 0.2);
+        //   cursor: pointer;
+        //   background: #073351;
+        //   text-align: center;
+        //   padding: 6px;
+        //   transition: all 0.3s;
+        //   // white-space: nowrap;
+        //   // overflow: hidden;
+        //   // text-overflow: ellipsis;
+        // }
+        // .card:hover {
+        //   border: 1px solid #2be5eb;
+        //   background: #06436d;
+        //   box-shadow: 0px 2px 5px 0px rgba(0, 78, 106, 0.8);
+        // }
+        // .content {
+        //   font-size: 22px;
+        //   font-family: PingFangSC-Semibold, PingFang SC;
+        //   font-weight: 600;
+        //   color: #2be5eb;
+        //   line-height: 48px;
+        // }
       }
       :deep(.el-input__wrapper) {
         width: 660px;
@@ -522,7 +595,7 @@ const initEchart = () => {
           font-size: 14px;
         }
       }
-      :deep(.is-focus){
+      :deep(.is-focus) {
         box-shadow: 0 0 0 1px var(--el-input-hover-border-color) inset;
       }
     }

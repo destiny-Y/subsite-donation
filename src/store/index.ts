@@ -22,7 +22,7 @@ export const useAppStore = defineStore('useAppStore', {
     initApp() {
       return Promise.all([
         baseService.get('/view/wsHomeViewView/dict/list'),
-        baseService.get('/view/wschannelView/channelList'),
+        baseService.get('/view/subsitechannel/channelList/donation'),
         baseService.get('/view/wsConfigView/switchConfig') //加载一键换肤
       ]).then(([dictDatas, menusData, configs]) => {
         const tempMenus = [...menusData.data];

@@ -26,6 +26,7 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAppStore } from '@/store';
+import Emits from "@/utils/emits";
 const router = useRouter();
 const store = useAppStore();
 const props = defineProps({
@@ -61,7 +62,11 @@ onMounted(() => {
 /**
  * 父级栏目点击
  */
-const navRouterHandle = (id?: number, index?: any) => {
+const navRouterHandle = (id?: number | string, index?: any) => {
+  // 登记查询栏目无跳转页面
+  if(id == "1817740827699490817"){
+    return;
+  }
   currentIndex.value = index;
   store.updateState({
     navigationInfo:
@@ -83,7 +88,19 @@ const navRouterHandle = (id?: number, index?: any) => {
 /**
  * 子栏目点击
  */
-const subNavRouterHandle = (e: any, childId?: number, childName?: string, childIndex?: number) => {
+const subNavRouterHandle = (e: any, childId?: number | string, childName?: string, childIndex?: number) => {
+  // 登记查询栏目二级栏目特殊处理
+  if(childId == "1817757218112581633" || childId == "1817803244789837826"){
+    // 展示遮罩层
+    Emits.emit("registerQuery");
+    return
+  }else if(childId == "1817757312123711490"){  // 人体器官捐献栏目跳转至中国人体器官捐献管理中心
+    window.open("https://register.codac.org.cn/");
+    return 
+  }else if(childId == "1817803321692401665"){  // 无偿献血栏目调整至重庆血液中心
+    window.open("https://www.ccbc.org.cn/")
+    return 
+  }
   const {
     target: {
       dataset: { parentindex }
@@ -99,6 +116,24 @@ const subNavRouterHandle = (e: any, childId?: number, childName?: string, childI
     parentNavCurrentIndex: parentindex,
     childNavCurrentIndex: childIndex
   });
+  // 人文关怀栏目特殊处理
+  if(childId == "1817803512172523521"){  // 人体器官捐献者
+    router.push({
+      path: '/humanisticCare',
+      query: {
+        name:2
+      }
+    });
+    return
+  }else if(childId == "1817803590371127297"){  // 遗体(角膜)捐献者
+    router.push({
+      path: '/humanisticCare',
+      query: {
+        name:1
+      }
+    });
+    return
+  }
   router.push({
     path: props.navList[parentindex].id == 1 ? '/home' : '/newsPage'
   });

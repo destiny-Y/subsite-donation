@@ -32,7 +32,8 @@ const routes = [
   }
 ];
 const router = createRouter({
-  history: createWebHistory(),
+  // history: createWebHistory(),
+  history: createWebHistory("/donationSite/"),  // histroy 模式下需要配置部署目录名
   scrollBehavior: () => {
     return {
       top: 0

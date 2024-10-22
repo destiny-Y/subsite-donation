@@ -4,7 +4,8 @@
     <div class="container">
       <div class="left-sub-nav">
         <div class="left-sub-nav-header">{{ navigationInfo.parentName }}</div>
-        <div class="left-sub-nav-item" :class="{ active: navigationInfo.childId == item.id }" v-for="(item, index) in childNavList" :key="item.id" @click="subNavHandle(item.id, item.channelName, index)">{{ item.channelName }}</div>
+        <div class="left-sub-nav-item" :class="{ active: navigationInfo.childId == item.id }" v-for="(item, index) in childNavList" :key="item.id" 
+        @click="subNavHandle(item.id, item.channelName, index)">{{ item.channelName }}</div>
       </div>
       <div class="right-main">
         <div class="right-main-header">{{ navigationInfo.parentName }}</div>
@@ -38,7 +39,6 @@ const state = reactive({
 const articleList = ref<any>([]); //文章列表
 const childNavList = ref<any>(); //子菜单列表
 const navigationInfo = ref<IObject>({});
-const isFlag = ref(false);
 watch(
   () => store.state.navigationInfo,
   (newValue) => {
@@ -92,19 +92,37 @@ const lockDetailHandle = (articleTitle: string, articleId: string) => {
 /**
  * 二级栏目切换
  */
-const subNavHandle = (id?: number, name?: string, index?: number) => {
+const subNavHandle = (id?: number | string, name?: string, index?: number) => {
   let navigationInfo = { ...store.state.navigationInfo };
   navigationInfo.childId = id;
   navigationInfo.childName = name;
   state.page = 1;
   articleList.value = [];
-  if (store.state.childNavCurrentIndex == index) {
-    getArticleList();
-  }
   store.updateState({
     navigationInfo,
     childNavCurrentIndex: index
   });
+  // 特殊处理人文关怀下子栏目
+  if(id == "1817803512172523521"){  // 人体器官捐献者
+    router.push({
+      path: '/humanisticCare',
+      query: {
+        name:2
+      }
+    });
+    return
+  }else if(id == "1817803590371127297"){  // 遗体(角膜)捐献者
+    router.push({
+      path: '/humanisticCare',
+      query: {
+        name:1
+      }
+    });
+    return
+  }
+  if (store.state.childNavCurrentIndex == index) {    
+    getArticleList();
+  }
 };
 /**
  * 分页, 当前页

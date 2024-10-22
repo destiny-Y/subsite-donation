@@ -3,11 +3,15 @@
     <ul>
       <li>
         <img class="toolimage" src="../../assets/images/phone.png" />
-        <div class="call" style="padding: 4px">023-61750853（白天）023-61758071（夜间）</div>
+        <!-- <div class="call" style="padding: 4px">023-61750853（白天）023-61758071（夜间）</div> -->
+        <div class="call" style="padding: 4px">
+          <p v-for="(item,index) in phoneList" :key="index">{{ item }}</p>
+        </div>
       </li>
       <li>
         <img class="toolimage" src="../../assets/images/wechat.png" />
-        <div class="codebox"><img class="codesImg" src="../../assets/images/cqgzh.png" /></div>
+        <!-- <div class="codebox"><img class="codesImg" src="../../assets/images/wechat.png" /></div> -->
+        <div class="codebox"><img class="codesImg" :src="imgUrl" /></div>
       </li>
       <li @click="backTop">
         <img class="toolimage" src="../../assets/images/backtop.png" />
@@ -16,7 +20,28 @@
   </div>
 </template>
 <script setup lang="ts">
-  
+  import baseService from '@/service/baseService';
+  import { onMounted, ref } from 'vue';
+
+  const imgUrl = ref("");
+  const phoneList = ref<any[]>([]);
+  onMounted(() => {
+    getQRCode();
+    getPhoneNumber();
+  });
+  // 获取联系方式配置
+  const getPhoneNumber = () => {
+    baseService.get("/view/wsConfigView/subsite/donation/ConnectionPhone").then((res) => {
+      // phoneContent.value = res.data?.configContentList.join(" ")
+      phoneList.value = res.data?.configContentList || [];
+    })
+  }
+  // 获取右侧工具栏二维码配置
+  const getQRCode = () => {
+    baseService.get("/view/wsConfigView/subsite/donation/donationUrlConfig").then((res) => {
+      imgUrl.value = res.data.configUrl;
+    })
+  }
   /**
    * 返回页面顶部
    */
@@ -82,6 +107,15 @@
     overflow: hidden;
     background-color: @publicColor;
     opacity: 1;
+    height: auto;
+    text-align: left;
+    max-height: 72px;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      // 修改滚动条样式
+      width: 3px;
+      border-radius: 80%;
+    }
   }
 
   li:hover .codebox {
