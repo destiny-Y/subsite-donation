@@ -93,15 +93,13 @@ const lockDetailHandle = (articleTitle: string, articleId: string) => {
  * 二级栏目切换
  */
 const subNavHandle = (id?: number | string, name?: string, index?: number) => {
+  // console.log(111);
+  
   let navigationInfo = { ...store.state.navigationInfo };
   navigationInfo.childId = id;
   navigationInfo.childName = name;
   state.page = 1;
   articleList.value = [];
-  store.updateState({
-    navigationInfo,
-    childNavCurrentIndex: index
-  });
   // 特殊处理人文关怀下子栏目
   if(id == "1817803512172523521"){  // 人体器官捐献者
     router.push({
@@ -119,10 +117,16 @@ const subNavHandle = (id?: number | string, name?: string, index?: number) => {
       }
     });
     return
+  }else{
+    if (store.state.childNavCurrentIndex == index) {    
+      getArticleList();
+    }
   }
-  if (store.state.childNavCurrentIndex == index) {    
-    getArticleList();
-  }
+  store.updateState({
+    navigationInfo,
+    childNavCurrentIndex: index
+  });
+  
 };
 /**
  * 分页, 当前页

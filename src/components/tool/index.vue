@@ -39,7 +39,7 @@
   // 获取右侧工具栏二维码配置
   const getQRCode = () => {
     baseService.get("/view/wsConfigView/subsite/donation/donationUrlConfig").then((res) => {
-      imgUrl.value = res.data.configUrl;
+      imgUrl.value = res.data?.configUrl || "";
     })
   }
   /**
@@ -109,6 +109,7 @@
     opacity: 1;
     height: auto;
     text-align: left;
+    min-height: 40px;
     max-height: 72px;
     overflow-y: scroll;
     &::-webkit-scrollbar {

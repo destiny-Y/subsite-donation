@@ -88,15 +88,9 @@ const getHostInfo = () => {
  */
 const getLinks = (newValue: any) => {
   baseService.get('/view/wsfriendlinkView/list').then((res) => {
-    links.value = res.data;
     footerNavList.value = [...getDictDataList(newValue, 'link_type')].map((item: any) => {
-      links.value.forEach((link: any) => {
-        if (item.dictValue == link.linkType) {
-          item.children = link.linkList;
-        } else {
-          item.children = [];
-        }
-      });
+      let tempLink = res.data.find((link: any) => item.dictValue == link.linkType);
+      item.children = typeof tempLink == 'undefined' ? [] : tempLink.linkList;
       return item;
     });
   });
@@ -153,6 +147,7 @@ const navRouterHandle = (id?: number, index?: any) => {
             padding: 15px 0;
             .nav-name {
               border-right: 1px solid #eee;
+              cursor: pointer;
             }
           }
         }

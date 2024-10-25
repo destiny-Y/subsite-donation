@@ -5,9 +5,9 @@ import { getValueByKeys } from './utils';
 import type { IHttpResponse, IObject } from '@/types/interface';
 import router from '@/router';
 // const devUrl = "https://hesenbai.natapp4.cc";
-const devUrl = "http://192.168.110.104:8080";
+// const devUrl = "http://192.168.110.104:8080";
 // const devUrl = "http://192.168.110.37:8181"; // 詹祥云本地
-// const devUrl = "https://testfive.firstaidaed.com.cn/api"; //测试服地址
+const devUrl = "https://testfive.firstaidaed.com.cn/api"; //测试服地址
 // const devUrl = "https://test.cqredcross.org.cn:1443"; //正式服地址
 // const devUrl = 'https://www.cqredcross.org.cn/api'; //正式服地址
 // window.SITE_CONFIG.apiURL =
@@ -22,7 +22,7 @@ http.interceptors.request.use(
     config.headers['X-Requested-With'] = 'XMLHttpRequest';
     config.headers['Request-Start'] = new Date().getTime();
     if (process.env.NODE_ENV !== 'development') {
-      config.headers['Website-host'] = window.location.origin;
+      config.headers['Website-host'] = "https://jxzx.cqredcross.org.cn";
     }
     if (config.method?.toUpperCase() === 'GET') {
       config.params = { ...config.params, _t: new Date().getTime() };

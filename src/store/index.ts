@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { type IObject } from '@/types/interface';
 import baseService from '@/service/baseService';
+import { filterTree } from '@/utils/utils';
 export const useAppStore = defineStore('useAppStore', {
   state: () => ({
     state: {
@@ -25,7 +26,7 @@ export const useAppStore = defineStore('useAppStore', {
         baseService.get('/view/subsitechannel/channelList/donation'),
         baseService.get('/view/wsConfigView/switchConfig') //加载一键换肤
       ]).then(([dictDatas, menusData, configs]) => {
-        const tempMenus = [...menusData.data];
+        let tempMenus = [...menusData.data];
         tempMenus.unshift({
           channelName: '首页',
           channelRoute: null,
@@ -36,6 +37,7 @@ export const useAppStore = defineStore('useAppStore', {
           pid: '0',
           pids: '0'
         });
+        tempMenus = filterTree(tempMenus)
         this.updateState({
           dicts: dictDatas.data,
           menus: tempMenus,

@@ -23,7 +23,8 @@
         <p :id="titleId" :class="titleClass">扫描下方二维码进入小程序</p>
       </div>
     </template>
-    <img style="width: 300px;" src="../assets/images/2.jpg" alt="">
+    <!-- <img style="width: 300px;" src="../assets/images/2.jpg" alt=""> -->
+    <img style="width: 300px;" src="../assets/images/3.png" alt="">
   </el-dialog>
 </template>
 <script lang="ts" setup>

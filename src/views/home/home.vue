@@ -4,7 +4,9 @@
       <el-carousel trigger="click" indicator-position="none" arrow="never" height="560px">
         <el-carousel-item v-for="(item,index) in bannerList">
           <!-- <img src="../../assets/images/banner.png" style="width: 100%;height: 100%;"/> -->
-          <img :src="item.thumbnail" style="width: 100%;height: 100%;"/>
+           <a :href="item.articleRoute" target="_blank">
+             <img :src="item.thumbnail" style="width: 100%;height: 100%;"/>
+           </a>
         </el-carousel-item>
       </el-carousel>
     </div>
@@ -80,7 +82,7 @@
           </WordCloud>
         </div> -->
         <WordCloud :data="wordCloudData" :width="1200" :height="550"/>
-        <el-input placeholder="请输入您的留言" v-model="messageContent">
+        <el-input placeholder="请输入您的留言" v-model="messageContent" maxlength="35" show-word-limit>
           <template #suffix>
             <el-button class="send-btn" @click="sendMessageHandler">发送留言</el-button>
           </template>
@@ -211,24 +213,31 @@ const toMemory = (name: number) => {
 };
 // 更新面包屑
 const updateBreadCrumbInfo = (name:number) => {
-  let list = store.state.menus.filter((item: any) => item.channelName == "人文关怀") || [];
+  let parentIndex = 0;  // 父栏目索引
+  // let list = store.state.menus.filter((item: any,index:number) => {
+  let list = store.state.menus.find((item: any,index:number) => {    
+    parentIndex = index;
+    return item.channelName == "人文关怀";
+  }) || {};
   let id = "";
   let title = "";
   if(name == 2){
-    id = list[0]?.children[1]?.id || "";
-    title = list[0]?.children[1]?.channelName || "";
+    id = list?.children[1]?.id || "";
+    title = list?.children[1]?.channelName || "";
   }else if(name == 1){
-    id = list[0]?.children[2]?.id || "";
-    title = list[0]?.children[2]?.channelName || "";
-  }
+    id = list?.children[2]?.id || "";
+    title = list?.children[2]?.channelName || "";
+  };
   store.updateState({
     navigationInfo: {
-      parentName: list[0]?.channelName || "人文关怀",
-      parentId: list[0]?.id || "",
+      parentName: list?.channelName || "人文关怀",
+      parentId: list?.id || "",
       childName:title,
       childId: id,
       articleTitle: ''
     },
+    parentNavCurrentIndex:parentIndex,
+    childNavCurrentIndex: 0
   })
 };
 // 发送留言
