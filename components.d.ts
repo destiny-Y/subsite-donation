@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     BlockTitle: typeof import('./src/components/block-title/block-title.vue')['default']
     BreadCrumb: typeof import('./src/components/bread-crumb/bread-crumb.vue')['default']
+    copy: typeof import('./src/components/wordCloud/wordCloud copy.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCarousel: typeof import('element-plus/es')['ElCarousel']
     ElCarouselItem: typeof import('element-plus/es')['ElCarouselItem']

@@ -95,7 +95,11 @@ const getLinks = (newValue: any) => {
     });
   });
 };
-const navRouterHandle = (id?: number, index?: any) => {
+const navRouterHandle = (id?: number | string, index?: any) => {
+  // 登记查询栏目无跳转页面
+  if(id == "1817740827699490817"){
+    return;
+  }
   store.updateState({
     navigationInfo:
       id != 1
@@ -143,11 +147,23 @@ const navRouterHandle = (id?: number, index?: any) => {
           text-align: center;
           overflow: hidden;
           .nav-item {
-            flex: 1;
+            // flex: 1;
             padding: 15px 0;
+            display: flex;
+            align-items: center;
+            position: relative;
             .nav-name {
-              border-right: 1px solid #eee;
+              // border-right: 1px solid #eee;
               cursor: pointer;
+            }
+            &::before{
+              content: '';
+              display: block;
+              width: 1px;
+              height: 20px;
+              background: #eee;
+              position: absolute;
+              left: -59px;
             }
           }
         }
@@ -157,7 +173,7 @@ const navRouterHandle = (id?: number, index?: any) => {
           // align-items: center;
           align-items: flex-start;
           overflow: hidden;
-          padding-left: 28px;
+          // padding-left: 28px;
           p {
             margin-right: 30px;
             .icp-text {
@@ -170,7 +186,8 @@ const navRouterHandle = (id?: number, index?: any) => {
           }
         }
         .address p:first-child{
-          width: 47%;
+          // width: 47%;
+          max-width: 47%;
         }
         .icp {
           p {

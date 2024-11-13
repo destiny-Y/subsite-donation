@@ -92,9 +92,7 @@ const lockDetailHandle = (articleTitle: string, articleId: string) => {
 /**
  * 二级栏目切换
  */
-const subNavHandle = (id?: number | string, name?: string, index?: number) => {
-  // console.log(111);
-  
+const subNavHandle = (id?: number | string, name?: string, index?: number) => {  
   let navigationInfo = { ...store.state.navigationInfo };
   navigationInfo.childId = id;
   navigationInfo.childName = name;
@@ -108,6 +106,7 @@ const subNavHandle = (id?: number | string, name?: string, index?: number) => {
         name:2
       }
     });
+    store.updateState({navigationInfo})
     return
   }else if(id == "1817803590371127297"){  // 遗体(角膜)捐献者
     router.push({
@@ -116,6 +115,7 @@ const subNavHandle = (id?: number | string, name?: string, index?: number) => {
         name:1
       }
     });
+    store.updateState({navigationInfo})
     return
   }else{
     if (store.state.childNavCurrentIndex == index) {    

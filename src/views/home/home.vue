@@ -15,7 +15,7 @@
         <el-col class="donation-item" :span="6">
           <img class="icon" src="../../assets/images/hematopoietic-stem-cell-icon.png" />
           <p class="donation-title">造血干细胞捐献</p>
-          <p class="donation-date">截止至{{ moment().format("YYYY年MM月DD日") }}</p>
+          <p class="donation-date">截止至{{ staticData.cellDate }}</p>
           <img class="line" src="../../assets/images/line.png" alt="">
           <p class="donation-realize">实现造血干细胞捐献</p>
           <p class="donation-number"><span class="number">{{staticData.cell}}</span>例</p>
@@ -23,7 +23,7 @@
         <el-col class="donation-item" :span="6">
           <img class="icon" src="../../assets/images/human-organ-icon.png" alt="">
           <p class="donation-title">人体器官捐献</p>
-          <p class="donation-date">截止至{{ moment().format("YYYY年MM月DD日") }}</p>
+          <p class="donation-date">截止至{{ staticData.organDate }}</p>
           <img class="line" src="../../assets/images/line.png" alt="">
           <p class="donation-realize">实现人体器官捐献</p>
           <p class="donation-number"><span class="number">{{staticData.organ}}</span>例</p>
@@ -31,7 +31,7 @@
         <el-col class="donation-item" :span="6">
           <img class="icon" src="../../assets/images/body-donation-icon.png" alt="">
           <p class="donation-title">遗体捐献</p>
-          <p class="donation-date">截止至{{ moment().format("YYYY年MM月DD日") }}</p>
+          <p class="donation-date">截止至{{ staticData.bodyDate }}</p>
           <img class="line" src="../../assets/images/line.png" alt="">
           <p class="donation-realize">实现遗体捐献</p>
           <p class="donation-number"><span class="number">{{staticData.body}}</span>例</p>
@@ -39,7 +39,7 @@
         <el-col class="donation-item" :span="6">
           <img class="icon" src="../../assets/images/cornea-donation-icon.png" alt="">
           <p class="donation-title">角膜捐献</p>
-          <p class="donation-date">截止至{{ moment().format("YYYY年MM月DD日") }}</p>
+          <p class="donation-date">截止至{{ staticData.corneaDate }}</p>
           <img class="line" src="../../assets/images/line.png" alt="">
           <p class="donation-realize">实现角膜捐献</p>
           <p class="donation-number"><span class="number">{{staticData.cornea}}</span>例</p>
@@ -166,6 +166,10 @@ const staticData = reactive({
   organ:0,  // 人体器官
   body:0,  // 遗体捐献
   cornea:0,  // 角膜捐献
+  cellDate:"",  // 造血干细胞更新时间
+  organDate:"",
+  bodyDate:"",
+  corneaDate:"",
 });
 watch(
   () => store.state.isConfigSwitch,
@@ -283,13 +287,17 @@ const getHomeData = () => {
     // 捐献数据统计
     res.data?.dataList.forEach((item:any) => {
       if(item.configName.includes("角膜")){
-        staticData.cornea = item.configNumber
+        staticData.cornea = item.configNumber;
+        staticData.corneaDate = item.configDate
       }else if(item.configName.includes("遗体")){
-        staticData.body = item.configNumber
+        staticData.body = item.configNumber;
+        staticData.bodyDate = item.configDate;
       }else if(item.configName.includes("器官")){
-        staticData.organ = item.configNumber
+        staticData.organ = item.configNumber;
+        staticData.organDate = item.configDate;
       }else if(item.configName.includes("细胞")){
-        staticData.cell = item.configNumber
+        staticData.cell = item.configNumber;
+        staticData.cellDate = item.configDate;
       }
     })
   });
