@@ -307,37 +307,6 @@ const cilckHandler = () => {
   Emits.emit("registerQuery");
 }
 /**
- * 查看详情
- */
-const lookNesDetail = (articleTitle: string, articleId: string, parentId: string) => {
-  // let index = findIndex(store.state.menus, parentId) as any;
-  // store.updateState({
-  //   navigationInfo: {
-  //     parentName: store.state.menus[index].channelName,
-  //     parentId: store.state.menus[index].id,
-  //     childName: store.state.menus[index].children.length > 0 ? store.state.menus[index].children[childCurrentIndex.value].channelName : '',
-  //     childId: store.state.menus[index].children.length > 0 ? store.state.menus[index].children[childCurrentIndex.value].id : '',
-  //     articleTitle
-  //   },
-  //   parentNavCurrentIndex: index,
-  //   childNavCurrentIndex: 0
-  // });
-  // router.push({
-  //   path: '/detail',
-  //   query: {
-  //     articleId,
-  //     channelId: parentId
-  //   }
-  // });
-  router.push({
-    path: '/detail',
-    query: {
-      articleId,
-      channelId: parentId
-    }
-  });
-};
-/**
  * 首页弹窗信息`
  */
 const getTips = () => {

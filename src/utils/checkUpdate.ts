@@ -20,6 +20,8 @@ class Monitor {
     const html: string = await this.getHtml()
     this.oldScript = this.parserScript(html)
     this.oldEtag = await this.getEtag()
+    // console.log(this.oldEtag);
+    
   }
   // 获取html
   async getHtml() {
@@ -29,8 +31,12 @@ class Monitor {
   // 获取etag是否变化
   async getEtag() {
     const res = await fetch('/')
-    // return res.headers.get('etag')
-    return res.headers.get('Etag')
+    return res.headers.get('etag');
+    // console.log(res);
+    // console.log(res.headers.get('etag'));
+    // console.log(res.headers.get('Etag'));
+    
+    // return res.headers.get('Etag')
   }
   // 解析script标签
   parserScript(html: string) {
@@ -63,6 +69,8 @@ class Monitor {
       new Set(this.oldScript.concat(this.newScript))
     ).length
     if (this.oldEtag !== this.newEtag || newLen !== oldLen) {
+      console.log("有更新");
+      
       this.dispatch.update.forEach((fn) => {
         fn()
       })
