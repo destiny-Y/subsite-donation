@@ -42,7 +42,7 @@
           <p class="donation-date">截止至{{ staticData.corneaDate }}</p>
           <img class="line" src="../../assets/images/line.png" alt="">
           <p class="donation-realize">实现角膜捐献</p>
-          <p class="donation-number"><span class="number">{{staticData.cornea}}</span>例</p>
+          <p class="donation-number"><span class="number">{{staticData.cornea}}</span>片</p>
         </el-col>
       </el-row>
       <el-row class="volunteer-humanity">

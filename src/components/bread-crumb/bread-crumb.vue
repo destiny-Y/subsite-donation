@@ -59,6 +59,10 @@ const goHome = () => {
  * 二级栏目
  */
 const goBackChildNav = () => {
+  // 点击的二级栏目未人文关怀下的缅怀纪念遗体（角膜）捐献者或者缅怀纪念人体器官捐献者，不进行页面跳转
+  if(breadCrumbInfo.value.childId == "1817803512172523521" || breadCrumbInfo.value.childId == "1817803590371127297"){
+    return 
+  }
   breadCrumbInfo.value.articleTitle = '';
   store.updateState({
     navigationInfo: breadCrumbInfo.value
