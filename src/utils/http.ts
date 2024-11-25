@@ -1,6 +1,6 @@
 import axios, { type AxiosRequestConfig } from 'axios';
 import qs from 'qs';
-import { ElMessage } from 'element-plus';
+// import { ElMessage } from 'element-plus';
 import { getValueByKeys } from './utils';
 import type { IHttpResponse, IObject } from '@/types/interface';
 import router from '@/router';

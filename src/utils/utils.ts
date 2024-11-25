@@ -86,6 +86,7 @@ export const changeNavTitle = (title: string) => {
  * @param {*} s
  */
 export const isMobile = (s: string): boolean => {
+  // return /^1[0-9]{10}$/.test(s);
   return /^1[0-9]{10}$/.test(s);
 };
 
@@ -122,7 +123,6 @@ export const useDecrypt = (value: any) => {
 
 // 传递信息时使用私钥加密手机号&身份证号
 export const useEncrypt = (value: any) => {
-  console.log(value);
   return value ? 'ZJGY-' + aes.encrypt(value) : value;
 };
 

@@ -22,16 +22,15 @@
         <div class="worship">
           <el-button @click="worshipHandler(2)"><el-icon class="el-icon--left"><img class="flower" src="../../assets/images/flower_white.png"></el-icon>献花祭拜</el-button>
         </div>
+        <div class="worship">
+          <el-button @click="updateInfo">申请修改</el-button>
+        </div>
       </div>
       <div class="info">
         <p class="info_title">基本信息</p>
         <div class="info_detail">
           <p>籍贯</p>
           <p class="info_value">{{dataForm.nativePlace}}</p>
-          <p>享年</p>
-          <p class="info_value">{{dataForm.deathAge}}</p>
-          <p>出生日期</p>
-          <p class="info_value">{{dataForm.birthday}}</p>
           <p>捐献类型</p>
           <p class="info_value">
             <span v-if="dataForm.donateType == 1">角膜</span>
@@ -42,14 +41,23 @@
             <span v-else-if="dataForm.donateType == 6">遗体(角膜)+遗体</span>
             <span v-else-if="dataForm.donateType == 7">遗体+遗体</span>
           </p>
+          <p>性别</p>
+          <p class="info_value">
+            <span v-if="dataForm.gender == '0'">男</span>
+            <span v-else-if="dataForm.gender == '1'">女</span>
+            <span v-else-if="dataForm.gender == '2'">保密</span>
+          </p>
+          <p>享年</p>
+          <p class="info_value">{{dataForm.deathAge}}</p>
+          <p>出生日期</p>
+          <p class="info_value">{{dataForm.birthday}}</p>
           <p>捐献日期</p>
-          <p class="info_value">2024-10-08</p>
+          <p class="info_value">{{dataForm.donateDate}}</p>
         </div>
         <p class="info_title life">生平</p>
         <div class="life_detail" v-html="dataForm.biography"></div>
         <p class="info_title">留言板</p>
         <div class="message_detail">
-          <!-- <p v-for="item in 20" :key="item">2024-04-07 10:50:59留言：我们永远想念你</p> -->
           <p v-for="item in personMessageList" :key="item.id">{{item.createDate + " "+ item.message}}</p>
         </div>
         <div class="message_select">
@@ -64,12 +72,12 @@
 <script setup lang="ts">
   import BreadCrumb from '@/components/bread-crumb/bread-crumb.vue';
   import { onMounted, onUnmounted, reactive,ref } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import Emits from "@/utils/emits";
-  import { useDebounce } from '@/utils/utils';
   import baseServiceDonation from '@/service/baseServiceDonation';
   
   const route = useRoute();
+  const router = useRouter();
 
   const dataForm = reactive({
     id:"" as any,
@@ -78,8 +86,10 @@
     candleCount:0,  // 蜡烛数量
     flowerCount:0,  // 鲜花数量
     nativePlace:"",  // 籍贯
+    gender:"",  // 性别
     deathAge:"",  // 享年
     birthday:"", // 出生日期
+    donateDate:"",  // 捐献日期
     donateType:0,  // 捐献类型
     biography:"" as any, // 生平
   });
@@ -97,7 +107,6 @@
 
   // 获取详细信息
   const getInfo = () => {
-    // baseService.get("/threeDonate/api/case/"+dataForm.id).then((res) => {
     baseServiceDonation.get("/threeDonate/api/case/"+dataForm.id).then((res) => {
       Object.assign(dataForm, res.data);
       getMessageInfo();
@@ -124,11 +133,6 @@
       dataForm.flowerCount ++;
       flowerCount ++;
     }
-    // useDebounce(() => {
-    //   updateCount();
-    //   candleCount = 0;
-    //   flowerCount = 0;
-    // },4000)
   };
   // 选择留言提交
   const messageHandler = (event:any) => {
@@ -145,15 +149,17 @@
     })
   };
   // 更新点烛和献花祭拜数量
-  const updateCount = () => {
+  const updateCount = async() => {    
     let params = {
       id:dataForm.id,
       candleCount:candleCount,
       flowerCount:flowerCount
     };
-    baseServiceDonation.put("/threeDonate/api/case/updateCount",params).then((res) => {
-      Object.assign(dataForm, res.data);
-    });
+    // baseServiceDonation.put("/threeDonate/api/case/updateCount",params).then((res) => {
+    //   Object.assign(dataForm, res.data);
+    // });
+    let response = await baseServiceDonation.put("/threeDonate/api/case/updateCount",params);      
+    Object.assign(dataForm, response.data);
   };
   // 离开页面时请求接口，保存点烛和献花祭拜数量
   onUnmounted(() => {
@@ -167,6 +173,15 @@
     // await updateCount();
     updateCount();
     return false
+  };
+  // 信息修改
+  const updateInfo = () => {
+    router.push({
+      path:"/infoedit",
+      query:{
+        id:dataForm.id
+      }
+    })
   }
 </script>
 <style lang="less" scoped>

@@ -40,6 +40,11 @@ const routes = [
     path: '/commemoration',
     name: 'commemoration',
     component: () => import('@/views/commemoration/commemoration.vue')
+  },
+  {
+    path:"/infoedit",
+    name: 'infoedit',
+    component: () => import('@/views/infoEdit/infoEdit.vue')
   }
 ];
 const router = createRouter({
