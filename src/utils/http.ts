@@ -7,9 +7,10 @@ import router from '@/router';
 // const devUrl = "https://hesenbai.natapp4.cc";
 // const devUrl = "http://192.168.110.104:8080";
 // const devUrl = "http://192.168.110.37:8181"; // 詹祥云本地
-const devUrl = "https://testfive.firstaidaed.com.cn/api"; //测试服地址
+const devUrl = "https://testfive.firstaidaed.com.cn:1443/api"; //新的测试服地址
+// const devUrl = "https://testfive.firstaidaed.com.cn/api"; //测试服地址
 // const devUrl = "https://test.cqredcross.org.cn:1443"; //正式服地址
-// const devUrl = 'https://www.cqredcross.org.cn/api'; //正式服地址
+// const devUrl = 'https://jxzx.cqredcross.org.cn/api'; //正式服地址
 // window.SITE_CONFIG.apiURL =
 // process.env.NODE_ENV === 'development' ? devUrl : `${window.location.origin}/api`;
 const http = axios.create({

@@ -36,6 +36,16 @@ watch(
  * 返回首页
  */
 const goHome = () => {
+  store.updateState({
+    navigationInfo: {
+      parentName: '',
+      childName: '',
+      articleTitle: '',
+      childId: ''
+    },
+    parentNavCurrentIndex: 0,
+    childNavCurrentIndex: 0
+  })
   router.push({
     path: '/home'
   });

@@ -5,9 +5,9 @@ import { type IHttpResponse, type IObject } from "@/types/interface";
 import http from "../utils/http";
 
 
-let base = "http://192.168.110.37:8181"  // 詹祥云本地
+// let base = "http://192.168.110.37:8181"  // 詹祥云本地
 // let base = "https://tss.cqredcross.org.cn"  // 博爱山城正式服
-// let base = "https://testthree.firstaidaed.com.cn"  // 博爱山城测试服
+let base = "https://testthree.firstaidaed.com.cn"  // 博爱山城测试服
 /**
  * 常用CRUD
  */

@@ -65,8 +65,8 @@
   const route = useRoute();
   const router = useRouter();
   let count = ref(0);
-  let api = "http://192.168.110.37:8181";  // 詹祥云本地
-  // let api = "https://tss.cqredcross.org.cn"  // 博爱山城正式服
+  // let api = "http://192.168.110.37:8181";  // 詹祥云本地
+  let api = "https://tss.cqredcross.org.cn"  // 博爱山城正式服
   // let api = "https://testthree.firstaidaed.com.cn"  // 博爱山城测试服
   const uploadUrl = ref(`${api}/oss/file/upload`);  // 文件上传路径
   // 用于收集用户输入
